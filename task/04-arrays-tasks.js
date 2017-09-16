@@ -460,7 +460,12 @@ function sortCitiesArray(arr) {
  *           [0,0,0,0,1]]   
  */
 function getIdentityMatrix(n) {
-   throw new Error('Not implemented');
+    var arr = new Array(n).fill(0);
+    return arr.map(function (row, rowIndex) {
+        row = new Array(n).fill(0);
+        row[rowIndex] = 1;
+        return row;
+    });
 }
 
 /**
@@ -477,7 +482,7 @@ function getIdentityMatrix(n) {
  *     3, 3   => [ 3 ]
  */
 function getIntervalArray(start, end) {
-   throw new Error('Not implemented');
+    return Array.from({ length: end - start + 1 }, () => start++);
 }
 
 /**
@@ -492,7 +497,7 @@ function getIntervalArray(start, end) {
  *   [ 1, 1, 2, 2, 3, 3, 4, 4] => [ 1, 2, 3, 4]
  */
 function distinct(arr) {
-   throw new Error('Not implemented');
+   return Array.from(new Set(arr));
 }
 
 /**
@@ -526,7 +531,12 @@ function distinct(arr) {
  *   }
  */
 function group(array, keySelector, valueSelector) {
-   throw new Error('Not implemented');
+    var map = new Map();
+    array.map((v, i) => {
+        map.set(keySelector(v), (map.get(keySelector(v)) === undefined ? [] : map.get(keySelector(v))).concat([valueSelector(v)]));
+    });
+    return map;
+
 }
 
 
@@ -542,7 +552,7 @@ function group(array, keySelector, valueSelector) {
  *   ['one','two','three'], x=>x.split('')  =>   ['o','n','e','t','w','o','t','h','r','e','e']
  */
 function selectMany(arr, childrenSelector) {
-    throw new Error('Not implemented');
+    return arr.map((obj) => childrenSelector(obj)).reduce((a,b) => a.concat(b));
 }
 
 
@@ -559,7 +569,7 @@ function selectMany(arr, childrenSelector) {
  *   [[[ 1, 2, 3]]], [ 0, 0, 1 ]      => 2        (arr[0][0][1])
  */
 function getElementByIndexes(arr, indexes) {
-    throw new Error('Not implemented');
+    return indexes.reduce((a,b)=>a[b],arr);
 }
 
 
@@ -582,7 +592,26 @@ function getElementByIndexes(arr, indexes) {
  * 
  */
 function swapHeadAndTail(arr) {
-    throw new Error('Not implemented');
+    if(arr.length === 1) {
+        return arr;
+    }
+
+    var middleIndex = Math.floor(arr.length / 2);
+
+    if(arr.length % 2 === 0){
+        var start = arr.slice(0, middleIndex);
+        var finish = arr.slice(middleIndex, arr.length);
+
+        return finish.concat(start);
+    }
+    else{
+        var start = arr.slice(0, middleIndex);
+        var middle = [];
+        middle.push(arr[middleIndex]);
+        var finish = arr.slice(-middleIndex);
+
+        return finish.concat(middle).concat(start);
+    }
 }
 
 
