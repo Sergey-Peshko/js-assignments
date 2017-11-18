@@ -17,8 +17,61 @@
  *  ]
  */
 function createCompassPoints() {
-    throw new Error('Not implemented');
-    var sides = ['N','E','S','W'];  // use array of cardinal directions only!
+
+    var sides = ['N', 'E', 'S', 'W'];  // use array of cardinal directions only!
+
+    const result = [];
+    let azimuthCounter = 0;
+
+    let addCompassPoint = function (currCardinalDirection, nextCardinalDirection) {
+        for (let position = 0; position < 8; position++) {
+
+            let abbreviation;
+
+            let cardinalDirectionsInSpecialOrder =
+                (currCardinalDirection === sides[0] || currCardinalDirection === sides[2]) ?
+                currCardinalDirection + nextCardinalDirection : nextCardinalDirection + currCardinalDirection;
+
+            switch (position) {
+                case 0:
+                    abbreviation = currCardinalDirection;
+                    break;
+                case 1:
+                    abbreviation = currCardinalDirection + 'b' + nextCardinalDirection;
+                    break;
+                case 2:
+                    abbreviation = currCardinalDirection + cardinalDirectionsInSpecialOrder;
+                    break;
+                case 3:
+                    abbreviation = cardinalDirectionsInSpecialOrder + 'b' + currCardinalDirection;
+                    break;
+                case 4:
+                    abbreviation = cardinalDirectionsInSpecialOrder;
+                    break;
+                case 5:
+                    abbreviation = cardinalDirectionsInSpecialOrder + 'b' + nextCardinalDirection;
+                    break;
+                case 6:
+                    abbreviation = nextCardinalDirection + cardinalDirectionsInSpecialOrder;
+                    break;
+                case 7:
+                    abbreviation = nextCardinalDirection + 'b' + currCardinalDirection;
+                    break;
+            }
+
+            let azimuth = azimuthCounter;
+            azimuthCounter += 11.25;
+
+            result.push({abbreviation: abbreviation, azimuth: azimuth});
+        }
+    };
+
+    addCompassPoint(sides[0], sides[1]);
+    addCompassPoint(sides[1], sides[2]);
+    addCompassPoint(sides[2], sides[3]);
+    addCompassPoint(sides[3], sides[0]);
+
+    return result;
 }
 
 
@@ -56,7 +109,20 @@ function createCompassPoints() {
  *   'nothing to do' => 'nothing to do'
  */
 function* expandBraces(str) {
-    throw new Error('Not implemented');
+    const queue = [str];
+    const result = []; //when we have nested {} we can have duplicates, so to avoid it we use storage of results.
+    while (queue.length > 0) {
+        str = queue.shift();
+        let match = str.match(/{([^{}]+)}/);
+        if (match) {
+            for (let value of match[1].split(','))
+                queue.push(str.replace(match[0], value));
+        }
+        else if (result.indexOf(str) < 0) {
+            result.push(str);
+            yield str;
+        }
+    }
 }
 
 
@@ -88,7 +154,34 @@ function* expandBraces(str) {
  *
  */
 function getZigZagMatrix(n) {
-    throw new Error('Not implemented');
+    let matrix = new Array(n);
+
+    for (let k = 0; k < n; k++) {
+        matrix[k] = (new Array(n));
+    }
+
+    let i = 1, j = 1;
+    for (let m = 0; m < n * n; m++) {
+        matrix[i - 1][j - 1] = m;
+        if ((i + j) % 2 === 0) {
+            // Even stripes
+            if (j < n)
+                j++;
+            else
+                i += 2;
+            if (i > 1)
+                i--;
+        } else {
+            // Odd stripes
+            if (i < n)
+                i++;
+            else
+                j += 2;
+            if (j > 1)
+                j--;
+        }
+    }
+    return matrix;
 }
 
 
@@ -113,9 +206,44 @@ function getZigZagMatrix(n) {
  *
  */
 function canDominoesMakeRow(dominoes) {
-    throw new Error('Not implemented');
-}
+    let result = false;
 
+    let visited = (new Array(dominoes.length)).fill(false);
+
+    function dfs(current, value, left) {
+        if (left === 0) {
+            result = true;
+            return;
+        }
+
+        visited[current] = true;
+
+        for (let i = 0; i < dominoes.length; i++)
+            if (!visited[i]) {
+                if (dominoes[i].indexOf(value) !== -1) {
+                    dfs(i, dominoes[i][0] === value ? dominoes[i][1] : dominoes[i][0], left - 1);
+                }
+            }
+
+        visited[current] = false;
+    }
+
+
+
+    for (let i = 0; i < dominoes.length; i++) {
+        dfs(i, dominoes[i][0], dominoes.length - 1);
+        if(result === false) {
+            dfs(i, dominoes[i][1], dominoes.length - 1);
+            if(result === true)
+                return result;
+        }
+        else {
+            return result;
+        }
+    }
+
+    return result;
+}
 
 /**
  * Returns the string expression of the specified ordered list of integers.
@@ -137,13 +265,27 @@ function canDominoesMakeRow(dominoes) {
  * [ 1, 2, 4, 5]          => '1,2,4,5'
  */
 function extractRanges(nums) {
-    throw new Error('Not implemented');
+    let str = '';
+    for (let i = 0; i < nums.length; i++) {
+        let start = i;
+
+        while (nums[++i] === nums[i - 1] + 1) {} //while range
+        i--; //return index to last num in range
+
+        if (i - start > 1) {
+            str += nums[start] + '-' + nums[i];
+        } else {
+            str += (i - start) === 0 ? nums[i] : nums[start] + ',' + nums[i] ;
+        }
+        str += ',';
+    }
+    return str.slice(0, -1);
 }
 
 module.exports = {
-    createCompassPoints : createCompassPoints,
-    expandBraces : expandBraces,
-    getZigZagMatrix : getZigZagMatrix,
-    canDominoesMakeRow : canDominoesMakeRow,
-    extractRanges : extractRanges
+    createCompassPoints: createCompassPoints,
+    expandBraces: expandBraces,
+    getZigZagMatrix: getZigZagMatrix,
+    canDominoesMakeRow: canDominoesMakeRow,
+    extractRanges: extractRanges
 };
